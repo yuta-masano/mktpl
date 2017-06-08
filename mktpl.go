@@ -16,8 +16,8 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the data YAML file
-  -t, --template   path to the template file
+  -d, --data       path to the data YAML file (*)
+  -t, --template   path to the template file (*)
 
   -h, --help       help for mktpl
   -v, --version    show program's version information and exit
@@ -83,6 +83,11 @@ func (m *mktpl) Run(args []string) int {
 
 	// Parse flag
 	if err := flags.Parse(args[1:]); err != nil {
+		return 2
+	}
+
+	if len(tplPath) == 0 || len(dataPath) == 0 {
+		fmt.Fprintf(m.errStream, "omitting -d[--data] and -t[--template] flags is not allowed\n")
 		return 2
 	}
 
