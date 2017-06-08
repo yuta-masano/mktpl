@@ -56,7 +56,7 @@ nl2text := perl -pe 's/\n/__NL__/g' | perl -pe 's/__NL__$$//' # trim the last EO
 text2nl := perl -i -pe 's/__NL__/\n/g'
 
 # Replace newlines with '__NL__' because Makefile can not hold newlines of bash command ouputs.
-1l_help_out = $(shell $(binary) --help | $(nl2text))
+1l_help_out = $(shell $(binary) --help 2>&1 | $(nl2text))
 ifneq ($(wildcard glide.yaml),)
 	1l_thanks_out := $(shell sed --quiet 's/\(\s\+\)\?- package: /* /p' glide.yaml \
 		| sort                                                                     \
