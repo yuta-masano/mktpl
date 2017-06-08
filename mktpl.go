@@ -83,6 +83,7 @@ func (m *mktpl) Run(args []string) int {
 
 	// Parse flag
 	if err := flags.Parse(args[1:]); err != nil {
+		fmt.Fprintf(m.errStream, "%s\n", err)
 		return 2
 	}
 
