@@ -114,7 +114,7 @@ func (m *mktpl) Run(args []string) int {
 }
 
 func isValidFlags() error {
-	if (len(tmplPath) == 0 || len(dataPath) == 0) && (showVersion == false) {
+	if (len(tmplPath) == 0 || len(dataPath) == 0) && !showVersion {
 		return fmt.Errorf("omitting -d[--data] and -t[--template] flags is not allowed")
 	}
 	return nil
