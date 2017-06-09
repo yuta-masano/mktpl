@@ -4,13 +4,13 @@ mktpl は YAML データを使って text/template の記法に従ったテン�
 
 ## Description
 
-* コマンドオプションで YAML 形式のデータファイルと text/template スタイルのテンプレートファイルのパスを指定する。
-* 標準出力にレンダリングされる。
+* コマンドオプションで YAML 形式のデータファイルと text/template スタイルのテンプレートファイルのパスを指定すると、標準出力にレンダリングされる。
+* YAML データファイルではハッシュの値にキーを指定することができる。
 
 ## Motivation
 
-* シンプルなテンプレートエンジンである、Mustache というものがある。
-* bash でも動作するが、データの受け渡しがシェル変数または環境変数としてしか渡せず、データが増えてくるとつらい。
+* ロジックレスでシンプルなテンプレートエンジンの、[mustache](https://mustache.github.io/) というものがある。
+* Bash で実装された CLI もあるが、データの受け渡しがシェル変数または環境変数としてしか渡せず、データが増えてくるとつらい。
 * ロジックレスなテンプレートが売りだが、やっぱり多少はロジックを含めたい。
 
 ## Installation
@@ -33,8 +33,8 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the data YAML file
-  -t, --template   path to the template file
+  -d, --data       path to the data YAML file (*)
+  -t, --template   path to the template file (*)
 
   -h, --help       help for mktpl
   -v, --version    show program's version information and exit

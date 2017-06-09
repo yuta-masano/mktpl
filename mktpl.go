@@ -16,7 +16,7 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the data YAML file (*)
+  -d, --data       path to the YAML data file (*)
   -t, --template   path to the template file (*)
 
   -h, --help       help for mktpl
