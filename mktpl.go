@@ -25,6 +25,17 @@ Flags:
   -v, --version    show program's version information and exit
 `
 
+const (
+	exitCodeOK int = 0
+
+	// Errors start at 11
+	exitCodeError = 10 + iota
+	exitCodeParseFlagsError
+	exitCodeInvalidFlags
+	exitCodeInvalidFilePath
+	exitCodeParseTemplateError
+)
+
 var (
 	// Flags
 	tplPath     string
@@ -68,38 +79,38 @@ func (m *mktpl) parseFlags(args []string) error {
 func (m *mktpl) Run(args []string) int {
 	if err := m.parseFlags(args); err != nil {
 		fmt.Fprintf(m.errStream, "faild in parsing flags: %s\n", err)
-		return 2
+		return exitCodeParseFlagsError
 	}
 
 	if err := isValidFlags(); err != nil {
 		fmt.Fprintf(m.errStream, "invalid flags: %s\n", err)
-		return 2
+		return exitCodeInvalidFlags
 	}
 
 	if showVersion {
 		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
 			buildVersion, buildRevision, buildWith)
-		return 0
+		return exitCodeOK
 	}
 
 	data, err := ioutil.ReadFile(dataPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
-		return 2
+		return exitCodeInvalidFilePath
 	}
 	tpl, err := template.ParseFiles(tplPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s\n", err)
-		return 22
+		return exitCodeParseTemplateError
 	}
 
 	var out []byte
 	if out, err = render(data, tpl); err != nil {
 		fmt.Fprintf(m.errStream, "%s\n", err)
-		return 2
+		return exitCodeError
 	}
 	fmt.Fprintf(m.outStream, "%s", string(out))
-	return 0
+	return exitCodeOK
 }
 
 func isValidFlags() error {
