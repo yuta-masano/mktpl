@@ -41,7 +41,7 @@ type mktpl struct {
 func render(data []byte, tpl *template.Template) ([]byte, error) {
 	mappedData := make(map[interface{}]interface{})
 	if err := yaml.Unmarshal(data, &mappedData); err != nil {
-		return nil, fmt.Errorf("failed in %s", err)
+		return nil, fmt.Errorf("failed in unmarshalling the YAML data: %s", err)
 	}
 
 	buf := new(bytes.Buffer)
@@ -51,12 +51,12 @@ func render(data []byte, tpl *template.Template) ([]byte, error) {
 
 	out, err := ioutil.ReadAll(buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed in reading: %s", err)
+		return nil, fmt.Errorf("failed in reading the buffered text: %s", err)
 	}
 	if re.MatchString(string(out)) {
 		tpl, err := template.New("").Parse(string(out))
 		if err != nil {
-			return nil, fmt.Errorf("failed in reading the template file %s", err)
+			return nil, fmt.Errorf("failed in parsing the buffered template %s", err)
 		}
 		return render(data, tpl)
 	}
@@ -94,15 +94,15 @@ func (m *mktpl) Run(args []string) int {
 		return 2
 	}
 
-	if len(tplPath) == 0 || len(dataPath) == 0 {
-		fmt.Fprintf(m.errStream, "omitting -d[--data] and -t[--template] flags is not allowed\n")
-		return 2
-	}
-
 	if showVersion {
 		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
 			buildVersion, buildRevision, buildWith)
 		return 0
+	}
+
+	if len(tplPath) == 0 || len(dataPath) == 0 {
+		fmt.Fprintf(m.errStream, "omitting -d[--data] and -t[--template] flags is not allowed\n")
+		return 2
 	}
 
 	data, err := ioutil.ReadFile(dataPath)
@@ -112,7 +112,7 @@ func (m *mktpl) Run(args []string) int {
 	}
 	tpl, err := template.ParseFiles(tplPath)
 	if err != nil {
-		fmt.Fprintf(m.errStream, "failed in reading the template file %s", err)
+		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s", err)
 		return 2
 	}
 
