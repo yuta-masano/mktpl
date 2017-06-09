@@ -1,10 +1,10 @@
 # {{BINARY}}
 
-{{BINARY}} は YAML データを使って text/template の記法に従ったテンプレートを標準出力にレンダリングするコマンドラインツールです。
+{{BINARY}} は YAML データと [text/template](http://golang-jp.org/pkg/text/template/) の記法に従ったテンプレートを使ってテキストを標準出力にレンダリングするコマンドラインツールです。
 
 ## Description
 
-* コマンドオプションで YAML 形式のデータファイルと text/template スタイルのテンプレートファイルのパスを指定すると、標準出力にレンダリングされる。
+* コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
 
 ## Motivation

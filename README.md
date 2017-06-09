@@ -1,10 +1,10 @@
 # mktpl
 
-mktpl は YAML データを使って text/template の記法に従ったテンプレートを標準出力にレンダリングするコマンドラインツールです。
+mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/template/) の記法に従ったテンプレートを使ってテキストを標準出力にレンダリングするコマンドラインツールです。
 
 ## Description
 
-* コマンドオプションで YAML 形式のデータファイルと text/template スタイルのテンプレートファイルのパスを指定すると、標準出力にレンダリングされる。
+* コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
 
 ## Motivation
@@ -33,7 +33,7 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the data YAML file (*)
+  -d, --data       path to the YAML data file (*)
   -t, --template   path to the template file (*)
 
   -h, --help       help for mktpl
