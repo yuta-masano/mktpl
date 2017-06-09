@@ -18,11 +18,11 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the YAML data file (*)
-  -t, --template   path to the template file (*)
+  -d, --data string       path to the YAML data file (*)
+  -t, --template string   path to the template file (*)
 
-  -h, --help       help for mktpl
-  -v, --version    show program's version information and exit
+  -h, --help              help for mktpl
+  -v, --version           show program's version information and exit
 `
 
 const (
