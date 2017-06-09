@@ -1,2 +1,6 @@
-0.0.1 (2017-06-08)
+0.0.2 (2017-06-09) (alpha version)
+  Enhancement
+    * YAML ハッシュの値にキーを書けるようにした。
+
+0.0.1 (2017-06-08) (alpha version)
   Initial release
