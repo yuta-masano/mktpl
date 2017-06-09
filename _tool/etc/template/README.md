@@ -9,6 +9,7 @@
 
 ## Motivation
 
+### VS [mustache](https://mustache.github.io/)
 * ロジックレスでシンプルなテンプレートエンジンの、[mustache](https://mustache.github.io/) というものがある。
 * Bash で実装された CLI もあるが、データの受け渡しがシェル変数または環境変数としてしか渡せず、データが増えてくるとつらい。
 * ロジックレスなテンプレートが売りだが、やっぱり多少はロジックを含めたい。

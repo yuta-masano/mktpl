@@ -9,6 +9,7 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 
 ## Motivation
 
+### VS [mustache](https://mustache.github.io/)
 * ロジックレスでシンプルなテンプレートエンジンの、[mustache](https://mustache.github.io/) というものがある。
 * Bash で実装された CLI もあるが、データの受け渡しがシェル変数または環境変数としてしか渡せず、データが増えてくるとつらい。
 * ロジックレスなテンプレートが売りだが、やっぱり多少はロジックを含めたい。
@@ -33,11 +34,11 @@ Usage:
   mktpl flags
 
 Flags:
-  -d, --data       path to the YAML data file (*)
-  -t, --template   path to the template file (*)
+  -d, --data string       path to the YAML data file (*)
+  -t, --template string   path to the template file (*)
 
-  -h, --help       help for mktpl
-  -v, --version    show program's version information and exit
+  -h, --help              help for mktpl
+  -v, --version           show program's version information and exit
 ```
 
 ## License
