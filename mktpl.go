@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"regexp"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
@@ -30,30 +32,35 @@ var (
 	buildWith     string
 )
 
+var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
+
 type mktpl struct {
 	outStream, errStream io.Writer
 }
 
-func (m *mktpl) render(dataPath, tplPath string) error {
-	data, err := ioutil.ReadFile(dataPath)
-	if err != nil {
-		return fmt.Errorf("failed in reading the data file: %s", err)
-	}
-
+func render(data []byte, tpl *template.Template) ([]byte, error) {
 	mappedData := make(map[interface{}]interface{})
-	if err = yaml.Unmarshal(data, &mappedData); err != nil {
-		return fmt.Errorf("failed in %s", err)
+	if err := yaml.Unmarshal(data, &mappedData); err != nil {
+		return nil, fmt.Errorf("failed in %s", err)
 	}
 
-	tpl, err := template.ParseFiles(tplPath)
+	buf := new(bytes.Buffer)
+	if err := tpl.Execute(buf, mappedData); err != nil {
+		return nil, fmt.Errorf("failed in rendering: %s", err)
+	}
+
+	out, err := ioutil.ReadAll(buf)
 	if err != nil {
-		return fmt.Errorf("failed in reading the template file %s", err)
+		return nil, fmt.Errorf("failed in reading: %s", err)
 	}
-
-	if err = tpl.Execute(m.outStream, mappedData); err != nil {
-		return fmt.Errorf("failed in rendering: %s", err)
+	if re.MatchString(string(out)) {
+		tpl, err := template.New("").Parse(string(out))
+		if err != nil {
+			return nil, fmt.Errorf("failed in reading the template file %s", err)
+		}
+		return render(data, tpl)
 	}
-	return nil
+	return out, nil
 }
 
 func (m *mktpl) Run(args []string) int {
@@ -98,10 +105,23 @@ func (m *mktpl) Run(args []string) int {
 		return 0
 	}
 
-	if err := m.render(dataPath, tplPath); err != nil {
+	data, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		fmt.Fprintf(m.errStream, "failed in reading the data file: %s", err)
+		return 2
+	}
+	tpl, err := template.ParseFiles(tplPath)
+	if err != nil {
+		fmt.Fprintf(m.errStream, "failed in reading the template file %s", err)
+		return 2
+	}
+
+	var out []byte
+	if out, err = render(data, tpl); err != nil {
 		fmt.Fprintf(m.errStream, "%s\n", err)
 		return 2
 	}
+	fmt.Fprintf(m.outStream, "%s", string(out))
 
 	return 0
 }
