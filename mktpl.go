@@ -26,6 +26,11 @@ Flags:
 `
 
 var (
+	// Flags
+	tplPath     string
+	dataPath    string
+	showVersion bool
+
 	// These values are embedded when building.
 	buildVersion  string
 	buildRevision string
@@ -36,6 +41,72 @@ var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
 
 type mktpl struct {
 	outStream, errStream io.Writer
+}
+
+func (m *mktpl) parseFlags(args []string) error {
+	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
+	flags.SetOutput(m.errStream)
+	flags.Usage = func() {
+		fmt.Fprint(m.errStream, helpText)
+	}
+
+	flags.StringVar(&dataPath, "d", "", "")
+	flags.StringVar(&dataPath, "data", "", "")
+	flags.StringVar(&tplPath, "t", "", "")
+	flags.StringVar(&tplPath, "template", "", "")
+	// help flags are skippable.
+	flags.BoolVar(&showVersion, "v", false, "")
+	flags.BoolVar(&showVersion, "version", false, "")
+
+	// Parse flag
+	if err := flags.Parse(args[1:]); err != nil {
+		return fmt.Errorf("%s", err)
+	}
+	return nil
+}
+
+func (m *mktpl) Run(args []string) int {
+	if err := m.parseFlags(args); err != nil {
+		fmt.Fprintf(m.errStream, "faild in parsing flags: %s\n", err)
+		return 2
+	}
+
+	if err := isValidFlags(); err != nil {
+		fmt.Fprintf(m.errStream, "invalid flags: %s\n", err)
+		return 2
+	}
+
+	if showVersion {
+		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
+			buildVersion, buildRevision, buildWith)
+		return 0
+	}
+
+	data, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
+		return 2
+	}
+	tpl, err := template.ParseFiles(tplPath)
+	if err != nil {
+		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s\n", err)
+		return 22
+	}
+
+	var out []byte
+	if out, err = render(data, tpl); err != nil {
+		fmt.Fprintf(m.errStream, "%s\n", err)
+		return 2
+	}
+	fmt.Fprintf(m.outStream, "%s", string(out))
+	return 0
+}
+
+func isValidFlags() error {
+	if (len(tplPath) == 0 || len(dataPath) == 0) && (showVersion == false) {
+		return fmt.Errorf("omitting -d[--data] and -t[--template] flags is not allowed")
+	}
+	return nil
 }
 
 func render(data []byte, tpl *template.Template) ([]byte, error) {
@@ -61,67 +132,4 @@ func render(data []byte, tpl *template.Template) ([]byte, error) {
 		return render(data, tpl)
 	}
 	return out, nil
-}
-
-func (m *mktpl) Run(args []string) int {
-	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
-	flags.SetOutput(m.errStream)
-	flags.Usage = func() {
-		fmt.Fprint(m.errStream, helpText)
-	}
-
-	var (
-		tplPath  string
-		dataPath string
-
-		showVersion bool
-	)
-
-	flags.StringVar(&dataPath, "d", "", "")
-	flags.StringVar(&dataPath, "data", "", "")
-
-	flags.StringVar(&tplPath, "t", "", "")
-	flags.StringVar(&tplPath, "template", "", "")
-
-	// help flags are skippable.
-
-	flags.BoolVar(&showVersion, "v", false, "")
-	flags.BoolVar(&showVersion, "version", false, "")
-
-	// Parse flag
-	if err := flags.Parse(args[1:]); err != nil {
-		fmt.Fprintf(m.errStream, "%s\n", err)
-		return 2
-	}
-
-	if showVersion {
-		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
-			buildVersion, buildRevision, buildWith)
-		return 0
-	}
-
-	if len(tplPath) == 0 || len(dataPath) == 0 {
-		fmt.Fprintf(m.errStream, "omitting -d[--data] and -t[--template] flags is not allowed\n")
-		return 2
-	}
-
-	data, err := ioutil.ReadFile(dataPath)
-	if err != nil {
-		fmt.Fprintf(m.errStream, "failed in reading the data file: %s", err)
-		return 2
-	}
-	tpl, err := template.ParseFiles(tplPath)
-	if err != nil {
-		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s", err)
-		return 2
-	}
-
-	var out []byte
-	if out, err = render(data, tpl); err != nil {
-		fmt.Fprintf(m.errStream, "%s\n", err)
-		return 2
-	}
-	fmt.Fprintf(m.outStream, "%s", string(out))
-
-	return 0
 }
