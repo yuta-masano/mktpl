@@ -53,7 +53,7 @@ func TestIsValidFlags(t *testing.T) {
 	}
 
 	for i, c := range testCases {
-		dataPath, tmplPath, showVersion = c.d, c.t, c.v
+		dataPath, tplPath, showVersion = c.d, c.t, c.v
 		if err := isValidFlags(); (err == nil) == c.isError {
 			t.Fatalf("[%d] invalid error state: expected=%t, but got=%t",
 				i+1, c.isError, (err == nil) == c.isError)
@@ -66,31 +66,31 @@ func TestRender(t *testing.T) {
 
 	testCases := []struct {
 		inData string
-		intmpl string
+		intpl  string
 		expect string
 	}{
 		{
 			inData: `TEST: test-01 . * ? %`,
-			intmpl: `test = {{ .TEST }}`,
+			intpl:  `test = {{ .TEST }}`,
 			expect: `test = test-01 . * ? %`,
 		},
 		{
 			inData: `TEST: 'test-02 . * ? %'
 TEST_NEST: '{{ .TEST }} nest'`,
-			intmpl: `test = {{ .TEST_NEST }}`,
+			intpl:  `test = {{ .TEST_NEST }}`,
 			expect: `test = test-02 . * ? % nest`,
 		},
 		{
 			inData: `TEST_NEST: '{{ .TEST}} nest'
 TEST: test-03`,
-			intmpl: `test = {{ .TEST_NEST }}`,
+			intpl:  `test = {{ .TEST_NEST }}`,
 			expect: `test = test-03 nest`,
 		},
 	}
 
 	for i, c := range testCases {
-		tmpl, _ := template.New("").Parse(c.intmpl)
-		out, err := render([]byte(c.inData), tmpl)
+		tpl, _ := template.New("").Parse(c.intpl)
+		out, err := render([]byte(c.inData), tpl)
 		if err != nil {
 			t.Fatal(err)
 		}
