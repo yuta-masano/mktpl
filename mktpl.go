@@ -38,7 +38,7 @@ const (
 
 var (
 	// Flags
-	tplPath     string
+	tmplPath    string
 	dataPath    string
 	showVersion bool
 
@@ -63,8 +63,8 @@ func (m *mktpl) parseFlags(args []string) error {
 
 	flags.StringVar(&dataPath, "d", "", "")
 	flags.StringVar(&dataPath, "data", "", "")
-	flags.StringVar(&tplPath, "t", "", "")
-	flags.StringVar(&tplPath, "template", "", "")
+	flags.StringVar(&tmplPath, "t", "", "")
+	flags.StringVar(&tmplPath, "template", "", "")
 	// help flags are skippable.
 	flags.BoolVar(&showVersion, "v", false, "")
 	flags.BoolVar(&showVersion, "version", false, "")
@@ -98,14 +98,14 @@ func (m *mktpl) Run(args []string) int {
 		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
 		return exitCodeInvalidFilePath
 	}
-	tpl, err := template.ParseFiles(tplPath)
+	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s\n", err)
 		return exitCodeParseTemplateError
 	}
 
 	var out []byte
-	if out, err = render(data, tpl); err != nil {
+	if out, err = render(data, tmpl); err != nil {
 		fmt.Fprintf(m.errStream, "%s\n", err)
 		return exitCodeError
 	}
@@ -114,20 +114,20 @@ func (m *mktpl) Run(args []string) int {
 }
 
 func isValidFlags() error {
-	if (len(tplPath) == 0 || len(dataPath) == 0) && (showVersion == false) {
+	if (len(tmplPath) == 0 || len(dataPath) == 0) && (showVersion == false) {
 		return fmt.Errorf("omitting -d[--data] and -t[--template] flags is not allowed")
 	}
 	return nil
 }
 
-func render(data []byte, tpl *template.Template) ([]byte, error) {
+func render(data []byte, tmpl *template.Template) ([]byte, error) {
 	mappedData := make(map[interface{}]interface{})
 	if err := yaml.Unmarshal(data, &mappedData); err != nil {
 		return nil, fmt.Errorf("failed in unmarshalling the YAML data: %s", err)
 	}
 
 	buf := new(bytes.Buffer)
-	if err := tpl.Execute(buf, mappedData); err != nil {
+	if err := tmpl.Execute(buf, mappedData); err != nil {
 		return nil, fmt.Errorf("failed in rendering: %s", err)
 	}
 
@@ -136,11 +136,11 @@ func render(data []byte, tpl *template.Template) ([]byte, error) {
 		return nil, fmt.Errorf("failed in reading the buffered text: %s", err)
 	}
 	if re.MatchString(string(out)) {
-		tpl, err := template.New("").Parse(string(out))
+		tmpl, err := template.New("").Parse(string(out))
 		if err != nil {
 			return nil, fmt.Errorf("failed in parsing the buffered template %s", err)
 		}
-		return render(data, tpl)
+		return render(data, tmpl)
 	}
 	return out, nil
 }
