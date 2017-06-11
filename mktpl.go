@@ -28,7 +28,7 @@ Flags:
 const (
 	exitCodeOK int = 0
 
-	// Errors start at 11
+	// Errors start from 11.
 	exitCodeError = 10 + iota
 	exitCodeParseFlagsError
 	exitCodeInvalidFlags
