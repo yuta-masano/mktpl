@@ -6,44 +6,44 @@ func TestIsValidFlags(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		t       string
 		d       string
+		t       string
 		v       bool
 		isError bool
 	}{
 		{
-			t:       "",
 			d:       "",
+			t:       "",
 			v:       false,
 			isError: true,
 		},
 		{
-			t:       "foo",
 			d:       "",
+			t:       "foo",
 			v:       false,
 			isError: true,
 		},
 		{
-			t:       "foo",
 			d:       "bar",
+			t:       "foo",
 			v:       false,
 			isError: false,
 		},
 		{
+			d:       "",
 			t:       "",
-			d:       "",
 			v:       true,
 			isError: false,
 		},
 		{
-			t:       "foo",
 			d:       "",
+			t:       "foo",
 			v:       true,
 			isError: false,
 		},
 		{
-			t:       "foo",
 			d:       "bar",
+			t:       "foo",
 			v:       true,
 			isError: false,
 		},
@@ -63,41 +63,51 @@ func TestRender(t *testing.T) {
 
 	testCases := []struct {
 		inData string
-		intpl  string
+		inTpl  string
 		expect string
 	}{
 		{
-			inData: `TEST: test-01 . * ? %`,
-			intpl:  `test = {{ .TEST }}`,
-			expect: `test = test-01 . * ? %`,
+			inData: `TEST: aaa . * ? %`,
+			inTpl:  `test01 is {{ .TEST }}`,
+			expect: `test01 is aaa . * ? %`,
 		},
 		{
-			inData: `TEST: 'test-02 . * ? %'
+			inData: `TEST: 'aaa . * ? %'
 TEST_NEST: '{{ .TEST }} nest'`,
-			intpl:  `test = {{ .TEST_NEST }}`,
-			expect: `test = test-02 . * ? % nest`,
+			inTpl:  `test02 is {{ .TEST_NEST }}`,
+			expect: `test02 is aaa . * ? % nest`,
 		},
 		{
 			inData: `TEST_NEST: '{{ .TEST}} nest'
-TEST: test-03`,
-			intpl:  `test = {{ .TEST_NEST }}`,
-			expect: `test = test-03 nest`,
+TEST: aaa`,
+			inTpl:  `test03 is {{ .TEST_NEST }}`,
+			expect: `test03 is aaa nest`,
 		},
 		{
-			inData: `TEST: [test04, foo, bar, baz]`,
-			intpl:  `test = {{ join .TEST "," }}`,
-			expect: `test = test04,foo,bar,baz`,
+			inData: `TEST: [foo, bar, baz]`,
+			inTpl:  `test04 is {{ join .TEST "," }}`,
+			expect: `test04 is foo,bar,baz`,
+		},
+		{
+			inData: `TEST: [foo, bar, baz, 1, '%.wer', 'hoge', '0123']
+TEST_NEST: '{{ join {{ .TEST }} "," }}'`,
+			inTpl:  `test05 is {{ join .TEST "," }}`,
+			expect: `test05 is foo,bar,baz,1,%.wer,hoge,0123`,
 		},
 	}
 
 	for i, c := range testCases {
-		tpl, _ := parseTemplate(c.intpl)
+		tpl, err := parseTemplate(c.inTpl)
+		if err != nil {
+			t.Fatal(err)
+		}
 		out, err := render([]byte(c.inData), tpl)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if string(out) != c.expect {
-			t.Fatalf("[%d] failed in templateing: expected=%s, but got=%s", i+1, c.expect, string(out))
+			t.Fatalf("[%d] failed in templateing: expected=%s, but got=%s",
+				i+1, c.expect, string(out))
 		}
 	}
 }
