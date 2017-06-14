@@ -1,9 +1,6 @@
 package main
 
-import (
-	"testing"
-	"text/template"
-)
+import "testing"
 
 func TestIsValidFlags(t *testing.T) {
 	t.Parallel()
@@ -86,10 +83,15 @@ TEST: test-03`,
 			intpl:  `test = {{ .TEST_NEST }}`,
 			expect: `test = test-03 nest`,
 		},
+		{
+			inData: `TEST: [test04, foo, bar, baz]`,
+			intpl:  `test = {{ join .TEST "," }}`,
+			expect: `test = test04,foo,bar,baz`,
+		},
 	}
 
 	for i, c := range testCases {
-		tpl, _ := template.New("").Parse(c.intpl)
+		tpl, _ := parseTemplate(c.intpl)
 		out, err := render([]byte(c.inData), tpl)
 		if err != nil {
 			t.Fatal(err)

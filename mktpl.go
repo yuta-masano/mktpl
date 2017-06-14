@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"regexp"
+	"strings"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
@@ -49,6 +50,16 @@ var (
 )
 
 var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
+
+var tplFuncMap = template.FuncMap{
+	"join": func(a []interface{}, sep string) string {
+		var s []string
+		for _, v := range a {
+			s = append(s, fmt.Sprint(v))
+		}
+		return strings.Join(s, sep)
+	},
+}
 
 type mktpl struct {
 	outStream, errStream io.Writer
@@ -98,7 +109,14 @@ func (m *mktpl) Run(args []string) int {
 		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
 		return exitCodeInvalidFilePath
 	}
-	tpl, err := template.ParseFiles(tplPath)
+
+	t, err := ioutil.ReadFile(tplPath)
+	if err != nil {
+		fmt.Fprintf(m.errStream, "failed in reading the template file: %s\n", err)
+		return exitCodeInvalidFilePath
+	}
+
+	tpl, err := parseTemplate(string(t))
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s\n", err)
 		return exitCodeParseTemplateError
@@ -111,6 +129,14 @@ func (m *mktpl) Run(args []string) int {
 	}
 	fmt.Fprintf(m.outStream, "%s", string(out))
 	return exitCodeOK
+}
+
+func parseTemplate(text string) (*template.Template, error) {
+	tpl, err := template.New("").Funcs(tplFuncMap).Parse(text)
+	if err != nil {
+		return nil, err
+	}
+	return tpl, nil
 }
 
 func isValidFlags() error {
@@ -136,7 +162,7 @@ func render(data []byte, tpl *template.Template) ([]byte, error) {
 		return nil, fmt.Errorf("failed in reading the buffered text: %s", err)
 	}
 	if re.MatchString(string(out)) {
-		tpl, err := template.New("").Parse(string(out))
+		tpl, err := parseTemplate(string(out))
 		if err != nil {
 			return nil, fmt.Errorf("failed in parsing the buffered template %s", err)
 		}
