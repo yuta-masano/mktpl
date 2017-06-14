@@ -1,6 +1,6 @@
-# {{BINARY}}
+# {{ .BINARY }}
 
-{{BINARY}} は YAML データと [text/template](http://golang-jp.org/pkg/text/template/) の記法に従ったテンプレートを使ってテキストを標準出力にレンダリングするコマンドラインツールです。
+{{ .BINARY }} は YAML データと [text/template](http://golang-jp.org/pkg/text/template/) の記法に従ったテンプレートを使ってテキストを標準出力にレンダリングするコマンドラインツールです。
 
 ## Description
 
@@ -16,33 +16,33 @@
 
 ## Installation
 
-[Releases ページ](https://github.com/yuta-masano/{{BINARY}}/releases)からダウンロードしてください。
+[Releases ページ](https://github.com/yuta-masano/{{ .BINARY }}/releases)からダウンロードしてください。
 
 あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは glide で vendoring しています。
 
 ```
-$ go get github.com/yuta-masano/{{BINARY}}
+$ go get github.com/yuta-masano/{{ .BINARY }}
 ```
 
 ## Usage
 
 ```
-$ {{BINARY}} --help
-{{HELP_OUT}}
+$ {{ .BINARY }} --help
+{{ .HELP_OUT }}
 ```
 
 ## License
 
 The MIT License (MIT)
 
-{{#THANKS_OUT}}
+{{ if .THANKS_OUT -}}
 ## Thanks
 
-{{BINARY}} uses the following packages. These packages are licensed under their own license.
+{{ .BINARY }} uses the following packages. These packages are licensed under their own license.
 
-{{THANKS_OUT}}
+{{ .THANKS_OUT }}
 
-{{/THANKS_OUT}}
+{{ end -}}
 ## Author
 
 [Yuta MASANO](https://github.com/yuta-masano)
@@ -53,10 +53,10 @@ The MIT License (MIT)
 
 ```
 $ # 1. リポジトリを取得。
-$ go get -v -u -d github.com/yuta-masano/{{BINARY}}
+$ go get -v -u -d github.com/yuta-masano/{{ .BINARY }}
 
 $ # 2. リポジトリディレクトリに移動。
-$ cd $GOPATH/src/github.com/yuta-masano/{{BINARY}}
+$ cd $GOPATH/src/github.com/yuta-masano/{{ .BINARY }}
 
 $ # 3. 開発ツールと vendor パッケージを取得。
 $ make deps-install
