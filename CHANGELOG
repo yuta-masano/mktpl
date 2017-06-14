@@ -1,3 +1,8 @@
+0.0.3 (2017-06-14) (alpha version)
+  Enhancement
+    * 配列を指定の文字列を区切り文字として一つの文字列にする
+      join 関数をテンプレートに実装した。
+
 0.0.2 (2017-06-09) (alpha version)
   Enhancement
     * YAML ハッシュの値にキーを書けるようにした。
