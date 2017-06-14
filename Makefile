@@ -100,7 +100,7 @@ endif
 	gometalinter --install
 	cp -a $(tool_dir)/etc/git_hooks/* .git/hooks/
 	mkdir -p .github
-	mktpl -d data.yml -t $(template_dir)/ISSUE_TEMPLATE.md.tpl > .github/ISSUE_TEMPLATE.md
+	mktpl -d data.yml -t $(template_dir)/ISSUE_TEMPLATE.md > .github/ISSUE_TEMPLATE.md
 	glide install --strip-vendor
 
 # You need to do this task when you have updated or installed packages, because godoc
@@ -151,8 +151,8 @@ clean:
 	rm -rf $(release_dir)
 
 .PHONY: readme.md ## create README.md using template
-readme.md: data.yml $(template_dir)/README.md.tpl
-	@mktpl -d data.yml -t $(template_dir)/README.md.tpl > README.md
+readme.md: data.yml $(template_dir)/README.md
+	@mktpl -d data.yml -t $(template_dir)/README.md > README.md
 	@$(text2nl) README.md
 
 # [Dumping Every Makefile Variable | CMCrossroads]
