@@ -135,7 +135,7 @@ push-release-tag: lint test readme.md
 .PHONY: all-build
 all-build: lint test
 	$(tool_dir)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)"      \
-		$(static_flags)" "$(ld_flags)" $(pkg_dest_dir)" "$(binary)"
+		"$(static_flags)" "$(ld_flags)" "$(pkg_dest_dir)" "$(binary)"
 
 .PHONY: all-archive
 all-archive:
