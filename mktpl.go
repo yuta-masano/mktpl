@@ -28,7 +28,6 @@ Flags:
 
 const (
 	exitCodeOK int = 0
-
 	// Errors start from 11.
 	exitCodeError = 10 + iota
 	exitCodeParseFlagsError
@@ -37,12 +36,15 @@ const (
 	exitCodeParseTemplateError
 )
 
+// Flags
 var (
-	// Flags
 	tplPath     string
 	dataPath    string
 	showVersion bool
+)
 
+// version information
+var (
 	// These values are embedded when building.
 	buildVersion  string
 	buildRevision string

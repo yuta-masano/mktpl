@@ -89,10 +89,11 @@ TEST: aaa`,
 			expect: `test04 is foo,bar,baz`,
 		},
 		{
-			inData: `TEST: [foo, bar, baz, 1, '%.wer', 'hoge', '0123']
+			// 0... は 8 進数として解釈される。
+			inData: `TEST: [foo, bar, baz, 1, '%.wer', 'hoge', '0123', 017]
 TEST_NEST: '{{ join {{ .TEST }} "," }}'`,
 			inTpl:  `test05 is {{ join .TEST "," }}`,
-			expect: `test05 is foo,bar,baz,1,%.wer,hoge,0123`,
+			expect: `test05 is foo,bar,baz,1,%.wer,hoge,0123,15`,
 		},
 	}
 
