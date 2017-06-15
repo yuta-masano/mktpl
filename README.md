@@ -7,6 +7,10 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 * コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
 
+## Demonstration
+
+![demo](https://raw.githubusercontent.com/yuta-masano/mktpl/images/_tool/etc/images/mktpl.gif)
+
 ## Motivation
 
 ### VS [mustache](https://mustache.github.io/)
@@ -67,7 +71,7 @@ $ # 2. リポジトリディレクトリに移動。
 $ cd $GOPATH/src/github.com/yuta-masano/mktpl
 
 $ # 3. 開発ツールと vendor パッケージを取得。
-$ make deps-install
+$ make setup
 
 $ # 4. その他のターゲットは help をどうぞ。
 $ make help
