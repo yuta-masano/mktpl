@@ -1,3 +1,7 @@
+0.0.5 (2017-06-15) (alpha version)
+  Misc
+    * README.md にデモ画像を追加。
+
 0.0.4 (2017-06-14) (alpha version)
   Bug
     * Makefile で正しくバイナリがビルド出来ない不具合を修正。
