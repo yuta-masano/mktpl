@@ -90,10 +90,6 @@ setup: data.yml
 ifeq ($(shell type -a glide 2>/dev/null),)
 	curl https://glide.sh/get | sh
 endif
-ifeq ($(wildcard $(mo)),)
-	wget https://raw.githubusercontent.com/tests-always-included/mo/master/mo -O $(mo) \
-		&& chmod u+x $(mo)
-endif
 	go get -v -u github.com/yuta-masano/mktpl
 	go get -v -u github.com/alecthomas/gometalinter
 	go get -v -u github.com/tcnksm/ghr
