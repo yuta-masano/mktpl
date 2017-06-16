@@ -22,7 +22,7 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 
 [Releases ページ](https://github.com/yuta-masano/mktpl/releases)からダウンロードしてください。
 
-あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは glide で vendoring しています。
+あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは [Glide | Package Management For Go](https://glide.sh/) で vendoring しています。
 
 ```
 $ go get github.com/yuta-masano/mktpl

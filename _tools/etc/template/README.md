@@ -22,7 +22,7 @@
 
 [Releases ページ](https://github.com/yuta-masano/{{ .BINARY }}/releases)からダウンロードしてください。
 
-あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは glide で vendoring しています。
+あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは [Glide | Package Management For Go](https://glide.sh/) で vendoring しています。
 
 ```
 $ go get github.com/yuta-masano/{{ .BINARY }}
