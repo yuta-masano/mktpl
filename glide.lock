@@ -1,6 +1,8 @@
-hash: a9f3ff84f477685343f8954311ec5273bda654281ab33c99fd81354886a64c75
-updated: 2017-06-08T12:30:26.894002249+09:00
+hash: 5544aef582d0af4018f91c2755c335be6c8d24fb767d6948ab2a00b0c3c616e8
+updated: 2017-06-16T16:35:00.812241883+09:00
 imports:
+- name: github.com/mattn/go-shellwords
+  version: 02e3cf038dcea8290e44424da473dd12be796a8a
 - name: gopkg.in/yaml.v2
   version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports: []

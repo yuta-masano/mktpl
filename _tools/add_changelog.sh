@@ -92,6 +92,8 @@ close_issues="$(echo "$commit_logs"            \
 
 commit_messages="$(mktemp --tmpdir=/tmp --suffix=".$(basename --suffix='.sh' "$0")")"
 {
+	echo '# This is a commit message to commit CHANGELOG.'
+	echo "# With '#' will be ignored, and the following message is used for commit title."
 	echo "Release $NEW_TAG"
 	if [ -n "$close_issues" ]; then
 		echo

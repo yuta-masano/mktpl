@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"regexp"
-	"strings"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
@@ -23,12 +22,10 @@ Flags:
   -t, --template string   path to the template file (*)
 
   -h, --help              help for mktpl
-  -v, --version           show program's version information and exit
-`
+  -v, --version           show program's version information and exit`
 
 const (
 	exitCodeOK int = 0
-
 	// Errors start from 11.
 	exitCodeError = 10 + iota
 	exitCodeParseFlagsError
@@ -37,12 +34,16 @@ const (
 	exitCodeParseTemplateError
 )
 
+// Flags
 var (
-	// Flags
 	tplPath     string
 	dataPath    string
+	showHelp    bool
 	showVersion bool
+)
 
+// version information
+var (
 	// These values are embedded when building.
 	buildVersion  string
 	buildRevision string
@@ -50,16 +51,6 @@ var (
 )
 
 var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
-
-var tplFuncMap = template.FuncMap{
-	"join": func(a []interface{}, sep string) string {
-		var s []string
-		for _, v := range a {
-			s = append(s, fmt.Sprint(v))
-		}
-		return strings.Join(s, sep)
-	},
-}
 
 type mktpl struct {
 	outStream, errStream io.Writer
@@ -69,14 +60,15 @@ func (m *mktpl) parseFlags(args []string) error {
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	flags.SetOutput(m.errStream)
 	flags.Usage = func() {
-		fmt.Fprint(m.errStream, helpText)
+		fmt.Fprintf(m.errStream, "%s\n", helpText)
 	}
 
 	flags.StringVar(&dataPath, "d", "", "")
 	flags.StringVar(&dataPath, "data", "", "")
 	flags.StringVar(&tplPath, "t", "", "")
 	flags.StringVar(&tplPath, "template", "", "")
-	// help flags are skippable.
+	flags.BoolVar(&showHelp, "h", false, "")
+	flags.BoolVar(&showHelp, "help", false, "")
 	flags.BoolVar(&showVersion, "v", false, "")
 	flags.BoolVar(&showVersion, "version", false, "")
 
@@ -93,15 +85,20 @@ func (m *mktpl) Run(args []string) int {
 		return exitCodeParseFlagsError
 	}
 
-	if err := isValidFlags(); err != nil {
-		fmt.Fprintf(m.errStream, "invalid flags: %s\n", err)
-		return exitCodeInvalidFlags
+	if showHelp {
+		fmt.Fprintf(m.outStream, "%s\n", helpText)
+		return exitCodeOK
 	}
 
 	if showVersion {
 		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
 			buildVersion, buildRevision, buildWith)
 		return exitCodeOK
+	}
+
+	if err := isValidFlags(); err != nil {
+		fmt.Fprintf(m.errStream, "invalid flags: %s\n", err)
+		return exitCodeInvalidFlags
 	}
 
 	data, err := ioutil.ReadFile(dataPath)
@@ -140,7 +137,7 @@ func parseTemplate(text string) (*template.Template, error) {
 }
 
 func isValidFlags() error {
-	if (len(tplPath) == 0 || len(dataPath) == 0) && !showVersion {
+	if len(tplPath) == 0 || len(dataPath) == 0 {
 		return fmt.Errorf("omitting -d[--data] and -t[--template] flags is not allowed")
 	}
 	return nil

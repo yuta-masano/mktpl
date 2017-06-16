@@ -7,7 +7,7 @@ sources = $(shell find -type f     \
 #===============================================================================
 #  release information
 #===============================================================================
-tool_dir := _tool
+tool_dir := _tools
 release_dir := _release
 pkg_dest_dir := $(release_dir)/.pkg
 
@@ -53,18 +53,11 @@ GOMETALINTER_EXCLUDE_REGEX := gas
 BINARY := $(binary)
 template_dir := $(tool_dir)/etc/template
 
-nl2text := perl -pe 's/\n/__NL__/g' | perl -pe 's/__NL__$$//' # trim the last EOL.
-text2nl := perl -i -pe 's/__NL__/\n/g'
-
-# Replace newlines with '__NL__' because Makefile can not hold newlines of bash command ouputs.
-1l_help_out = $(shell $(binary) --help 2>&1 | $(nl2text))
+HELP_OUT := $(binary) --help
 ifneq ($(wildcard glide.yaml),)
-	1l_thanks_out := $(shell sed --quiet 's/\(\s\+\)\?- package: /* /p' glide.yaml \
-		| sort                                                                     \
-		| $(nl2text))
+	thanks_sed := sed --quiet 's/\\(\\s\\+\\)\\?- package: /* /p' glide.yaml
 endif
-HELP_OUT = $(1l_help_out)
-THANKS_OUT = '$(1l_thanks_out)'
+THANKS_OUT := "$(thanks_sed)"
 
 #===============================================================================
 #  targets
@@ -89,10 +82,6 @@ help:
 setup: data.yml
 ifeq ($(shell type -a glide 2>/dev/null),)
 	curl https://glide.sh/get | sh
-endif
-ifeq ($(wildcard $(mo)),)
-	wget https://raw.githubusercontent.com/tests-always-included/mo/master/mo -O $(mo) \
-		&& chmod u+x $(mo)
 endif
 	go get -v -u github.com/yuta-masano/mktpl
 	go get -v -u github.com/alecthomas/gometalinter
@@ -134,7 +123,7 @@ push-release-tag: lint test readme.md
 
 .PHONY: all-build
 all-build: lint test
-	$(tool_dir)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)"      \
+	$(tool_dir)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)"        \
 		"$(static_flags)" "$(ld_flags)" "$(pkg_dest_dir)" "$(binary)"
 
 .PHONY: all-archive
@@ -153,7 +142,6 @@ clean:
 .PHONY: readme.md ## create README.md using template
 readme.md: data.yml $(template_dir)/README.md
 	@mktpl -d data.yml -t $(template_dir)/README.md > README.md
-	@$(text2nl) README.md
 
 # [Dumping Every Makefile Variable | CMCrossroads]
 # https://www.cmcrossroads.com/article/dumping-every-makefile-variable
@@ -168,7 +156,8 @@ print_mktpl_vars:
 		)                                                \
 	)
 
-data.yml: $(MAKEFILE_LIST)
+.PHONY: data.yml
+data.yml:
 	@$(MAKE) print_mktpl_vars | grep '^[A-Z]' > $@
 	@sed -i -e '/^make\[[0-9]\+\]:.*/d' \
 		-e 's/ *$$//'                   \
