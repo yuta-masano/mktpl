@@ -31,8 +31,8 @@ $ go get github.com/yuta-masano/{{ .BINARY }}
 ## Usage
 
 ```
-$ {{ .BINARY }} --help
-{{ .HELP_OUT }}
+$ {{ .HELP_OUT }}
+{{ exec .HELP_OUT -}}
 ```
 
 ## License
@@ -44,8 +44,7 @@ The MIT License (MIT)
 
 {{ .BINARY }} uses the following packages. These packages are licensed under their own license.
 
-{{ .THANKS_OUT }}
-
+{{ exec .THANKS_OUT }}
 {{ end -}}
 ## Author
 
