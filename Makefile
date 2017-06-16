@@ -7,7 +7,7 @@ sources = $(shell find -type f     \
 #===============================================================================
 #  release information
 #===============================================================================
-tool_dir := _tool
+tool_dir := _tools
 release_dir := _release
 pkg_dest_dir := $(release_dir)/.pkg
 

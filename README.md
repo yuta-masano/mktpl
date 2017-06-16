@@ -9,7 +9,7 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 
 ## Demonstration
 
-![demo](https://raw.githubusercontent.com/yuta-masano/mktpl/images/_tool/etc/images/mktpl.gif)
+![demo](https://raw.githubusercontent.com/yuta-masano/mktpl/images/_tools/etc/images/mktpl.gif)
 
 ## Motivation
 
