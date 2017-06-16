@@ -8,49 +8,32 @@ func TestIsValidFlags(t *testing.T) {
 	testCases := []struct {
 		d       string
 		t       string
-		v       bool
 		isError bool
 	}{
 		{
 			d:       "",
 			t:       "",
-			v:       false,
-			isError: true,
-		},
-		{
-			d:       "",
-			t:       "foo",
-			v:       false,
 			isError: true,
 		},
 		{
 			d:       "bar",
-			t:       "foo",
-			v:       false,
-			isError: false,
-		},
-		{
-			d:       "",
 			t:       "",
-			v:       true,
-			isError: false,
+			isError: true,
 		},
 		{
 			d:       "",
 			t:       "foo",
-			v:       true,
-			isError: false,
+			isError: true,
 		},
 		{
 			d:       "bar",
 			t:       "foo",
-			v:       true,
 			isError: false,
 		},
 	}
 
 	for i, c := range testCases {
-		dataPath, tplPath, showVersion = c.d, c.t, c.v
+		dataPath, tplPath = c.d, c.t
 		if err := isValidFlags(); (err == nil) == c.isError {
 			t.Fatalf("[%d] invalid error state: expected=%t, but got=%t",
 				i+1, c.isError, (err == nil) == c.isError)
@@ -94,6 +77,16 @@ TEST: aaa`,
 TEST_NEST: '{{ join {{ .TEST }} "," }}'`,
 			inTpl:  `test05 is {{ join .TEST "," }}`,
 			expect: `test05 is foo,bar,baz,1,%.wer,hoge,0123,15`,
+		},
+		{
+			inData: `TEST: echo -n test06`,
+			inTpl:  `test06 is {{ exec .TEST }}`,
+			expect: `test06 is test06`,
+		},
+		{
+			inData: `TEST: echo -n 'test07 test07'`,
+			inTpl:  `test07 is {{ exec .TEST }}`,
+			expect: `test07 is test07 test07`,
 		},
 	}
 
