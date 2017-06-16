@@ -1,3 +1,7 @@
+0.0.6 (2017-06-16) (alpha version)
+  Enhancement
+    * 外部コマンドを実行できる exec 関数をテンプレートに実装した。
+
 0.0.5 (2017-06-15) (alpha version)
   Misc
     * README.md にデモ画像を追加。
