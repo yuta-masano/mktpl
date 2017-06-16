@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"regexp"
-	"strings"
 	"text/template"
 
 	"gopkg.in/yaml.v2"
@@ -52,16 +51,6 @@ var (
 )
 
 var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
-
-var tplFuncMap = template.FuncMap{
-	"join": func(a []interface{}, sep string) string {
-		var s []string
-		for _, v := range a {
-			s = append(s, fmt.Sprint(v))
-		}
-		return strings.Join(s, sep)
-	},
-}
 
 type mktpl struct {
 	outStream, errStream io.Writer
