@@ -79,6 +79,7 @@ func (m *mktpl) parseFlags(args []string) error {
 	return nil
 }
 
+// Run is the actual main function.
 func (m *mktpl) Run(args []string) int {
 	if err := m.parseFlags(args); err != nil {
 		fmt.Fprintf(m.errStream, "faild in parsing flags: %s\n", err)
