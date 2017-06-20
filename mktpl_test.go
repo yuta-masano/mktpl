@@ -61,7 +61,7 @@ TEST_NEST: '{{ .TEST }} nest'`,
 			expect: `test02 is aaa . * ? % nest`,
 		},
 		{
-			inData: `TEST_NEST: '{{ .TEST}} nest'
+			inData: `TEST_NEST: '{{ .TEST }} nest'
 TEST: aaa`,
 			inTpl:  `test03 is {{ .TEST_NEST }}`,
 			expect: `test03 is aaa nest`,
@@ -87,6 +87,17 @@ TEST_NEST: '{{ join {{ .TEST }} "," }}'`,
 			inData: `TEST: echo -n 'test07 test07'`,
 			inTpl:  `test07 is {{ exec .TEST }}`,
 			expect: `test07 is test07 test07`,
+		},
+		{
+			inData: `TEST: ""`,
+			inTpl:  `test08 is {{ exec "echo -n 'test08 test08'" }}`,
+			expect: `test08 is test08 test08`,
+		},
+		{
+			inData: `TEST: echo -n 'test09'
+TEST_NEST: test09 {{ exec .TEST }}`,
+			inTpl:  `test09 is {{ .TEST_NEST }} nest`,
+			expect: `test09 is test09 test09 nest`,
 		},
 	}
 
