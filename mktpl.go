@@ -50,7 +50,7 @@ var (
 	buildWith     string
 )
 
-var re = regexp.MustCompile(`{{[-.\s\w]+}}`)
+var re = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
 
 type mktpl struct {
 	outStream, errStream io.Writer

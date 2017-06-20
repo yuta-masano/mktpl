@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"regexp"
+	"testing"
+)
 
 func TestIsValidFlags(t *testing.T) {
 	t.Parallel()
@@ -113,6 +116,46 @@ TEST_NEST: test09 {{ exec .TEST }}`,
 		if string(out) != c.expect {
 			t.Fatalf("[%d] failed in templateing: expected=%s, but got=%s",
 				i+1, c.expect, string(out))
+		}
+	}
+}
+
+func BenchmarkSimpleRe(b *testing.B) {
+	inData := `TEST: echo -n 'test09'
+TEST_NEST: test09 {{ exec .TEST }}`
+	inTpl := `test09 is {{ .TEST_NEST }} nest`
+
+	re = regexp.MustCompile(`{{[-.\s\w]+}}`)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		tpl, err := parseTemplate(inTpl)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = render([]byte(inData), tpl)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkStrictRe(b *testing.B) {
+	inData := `TEST: echo -n 'test09'
+TEST_NEST: test09 {{ exec .TEST }}`
+	inTpl := `test09 is {{ .TEST_NEST }} nest`
+
+	re = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		tpl, err := parseTemplate(inTpl)
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = render([]byte(inData), tpl)
+		if err != nil {
+			b.Fatal(err)
 		}
 	}
 }
