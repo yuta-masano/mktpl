@@ -6,6 +6,7 @@
 
 * コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
+* 独自のテンプレート関数を実装している。
 
 ## Demonstration
 
@@ -22,7 +23,7 @@
 
 [Releases ページ](https://github.com/yuta-masano/{{ .BINARY }}/releases)からダウンロードしてください。
 
-あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは [Glide | Package Management For Go](https://glide.sh/) で vendoring しています。
+あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは [glide](https://glide.sh/) で vendoring しています。
 
 ```
 $ go get github.com/yuta-masano/{{ .BINARY }}
@@ -34,6 +35,17 @@ $ go get github.com/yuta-masano/{{ .BINARY }}
 $ {{ .HELP_OUT }}
 {{ exec .HELP_OUT -}}
 ```
+
+## Template Functions
+
+### \{\{ join list separator \}\}
+
+Same as [strings.Join](https://golang.org/pkg/strings/#Join) function.
+
+### \{\{ exec command \[flags\] \[args\] \}\}
+
+Execute **single** external command and return it's stdout output.  
+**single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).
 
 ## License
 
