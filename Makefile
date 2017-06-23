@@ -43,7 +43,7 @@ ld_flags := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(version)' \
 #===============================================================================
 GOMETALINTER_OPTS := --enable-all --vendored-linters --deadline=60s \
 	--dupl-threshold=75 --line-length=120
-GOMETALINTER_EXCLUDE_REGEX := gas
+GOMETALINTER_EXCLUDE_REGEX := gas|duplicate of mktpl_test.go
 
 #===============================================================================
 #  file generation from template engine
