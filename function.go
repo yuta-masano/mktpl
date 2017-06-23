@@ -10,8 +10,9 @@ import (
 )
 
 var tplFuncMap = template.FuncMap{
-	"join": tplJoin,
-	"exec": tplExec,
+	"join":    tplJoin,
+	"exec":    tplExec,
+	"exclude": tplExclude,
 }
 
 func tplJoin(a []interface{}, sep string) string {
@@ -33,4 +34,18 @@ func tplExec(a interface{}) string {
 		return err.Error()
 	}
 	return string(out)
+}
+
+func tplExclude(a []interface{}, s ...string) []interface{} {
+	var n []interface{}
+LOOP:
+	for _, v := range a {
+		for _, w := range s {
+			if fmt.Sprint(v) == w {
+				continue LOOP
+			}
+		}
+		n = append(n, v)
+	}
+	return n
 }

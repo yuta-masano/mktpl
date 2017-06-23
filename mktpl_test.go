@@ -102,6 +102,51 @@ TEST_NEST: test09 {{ exec .TEST }}`,
 			inTpl:  `test09 is {{ .TEST_NEST }} nest`,
 			expect: `test09 is test09 test09 nest`,
 		},
+		// とても分かり辛い。
+		{
+			inData: `TEST: [db01, db02, db03, db04]`,
+			inTpl: `test10
+{{ $var := .TEST -}}
+{{ $foo := .TEST -}}
+{{ range $i := $var -}}
+# for {{ $i }}
+{{ range $j := $foo -}}
+{{ if ne $i $j -}}
+{{ $j }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+`,
+			expect: `test10
+# for db01
+db02
+db03
+db04
+# for db02
+db01
+db03
+db04
+# for db03
+db01
+db02
+db04
+# for db04
+db01
+db02
+db03
+`,
+		},
+		// ので、こうした。
+		{
+			inData: `TEST: [DB1, DB2, DB3]`,
+			inTpl: `test11
+{{ range $i, $v := exclude .TEST "DB1" "DB3" -}}
+{{ $i }} {{ $v }}
+{{ end -}}`,
+			expect: `test11
+0 DB2
+`,
+		},
 	}
 
 	for i, c := range testCases {
