@@ -45,7 +45,7 @@ Same as [strings.Join](https://golang.org/pkg/strings/#Join) function.
 ### \{\{ exec command \[flags\] \[args\] \}\}
 
 Execute **single** external command and return it's stdout output.  
-**single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).
+**Single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).
 
 ## License
 
