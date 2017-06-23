@@ -7,6 +7,7 @@
 * コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
 * 独自のテンプレート関数を実装している。
+  * [Masterminds/sprig: Useful template functions for Go templates.](https://github.com/Masterminds/sprig) というテンプレート関数ライブラリを発見したけど、べ、別に泣いてないですよ。
 
 ## Demonstration
 
@@ -46,6 +47,10 @@ Same as [strings.Join](https://golang.org/pkg/strings/#Join) function.
 
 Execute **single** external command and return it's stdout output.  
 **Single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).
+
+### \{\{ exclude list string... \}\}
+
+Return a new list which is excluded specified strings from the elements in specified list.
 
 ## License
 
