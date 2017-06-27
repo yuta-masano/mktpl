@@ -152,7 +152,7 @@ print_mktpl_vars:
 		$(if                                             \
 			$(filter-out environment% default automatic, \
 				$(origin $V)),                           \
-			$(info $V: $($V) )                           \
+			$(info $V: $($V))                            \
 		)                                                \
 	)
 
