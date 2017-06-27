@@ -110,7 +110,11 @@ lint: install
 
 .PHONY: test ## go test
 test:
-	go test -v -cover $(shell glide novendor)
+	go test -v -cover $(shell glide novendor) -coverprofile=coverage.out
+
+.PHONY: cover ## open the result of test coverage on the browser
+cover: test
+	go tool cover -html=coverage.out
 
 .PHONY: push-release-tag ## update CHANGELOG and push all of the your development works
 push-release-tag: lint test readme.md
@@ -134,10 +138,11 @@ all-archive:
 release: all-build all-archive
 	ghr "$(version)" "$(release_dir)"
 
-.PHONY: clean ## uninstall the binary and remove $(release_dir) directory
+.PHONY: clean ## uninstall the binary and remove non versioning files and direcotries
 clean:
 	go clean -i .
 	rm -rf $(release_dir)
+	rm coverage.out data.yml
 
 .PHONY: readme.md ## create README.md using template
 readme.md: data.yml $(template_dir)/README.md
