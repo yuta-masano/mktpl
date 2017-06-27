@@ -1,9 +1,22 @@
 package main
 
 import (
+	"os"
 	"regexp"
 	"testing"
 )
+
+func TestParseFlags(t *testing.T) {
+	t.Parallel()
+
+	mktpl := &mktpl{
+		outStream: os.Stdout,
+		errStream: os.Stderr,
+	}
+	if err := mktpl.parseFlags([]string{"test"}); err != nil {
+		t.Fatalf("failed in parsing flags: %s", err)
+	}
+}
 
 func TestIsValidFlags(t *testing.T) {
 	t.Parallel()
