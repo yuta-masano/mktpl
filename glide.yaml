@@ -1,5 +1,0 @@
-package: github.com/yuta-masano/mktpl
-import:
-- package: gopkg.in/yaml.v2
-- package: github.com/mattn/go-shellwords
-  version: ^1.0.3

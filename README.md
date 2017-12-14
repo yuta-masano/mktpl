@@ -70,8 +70,8 @@ The MIT License (MIT)
 
 mktpl uses the following packages. These packages are licensed under their own license.
 
-* gopkg.in/yaml.v2
 * github.com/mattn/go-shellwords
+* gopkg.in/yaml.v2
 
 ## Author
 
