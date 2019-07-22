@@ -17,7 +17,7 @@ const helpText = `mktpl is a tool to render Golang text/template with template a
 Usage:
   mktpl flags
 
-Flags:
+Flags (* is mandatory):
   -d, --data string       path to the YAML data file (*)
   -t, --template string   path to the template file (*)
 
@@ -139,7 +139,7 @@ func parseTemplate(text string) (*template.Template, error) {
 
 func isValidFlags() error {
 	if len(tplPath) == 0 || len(dataPath) == 0 {
-		return fmt.Errorf("omitting -d[--data] and -t[--template] flags is not allowed")
+		return fmt.Errorf("omitting -d|--data and -t|--template flags is not allowed")
 	}
 	return nil
 }
