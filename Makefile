@@ -88,6 +88,7 @@ setup: $(data_yml)
 
 .PHONY: init ## misc tasks for first commit
 init: setup .gitignore
+	! git log --grep='First commit' --format='%s' | grep --quiet '^First commit$$'
 	mkdir --parents .github
 	${call mktpl,$(template_dir)/ISSUE_TEMPLATE.md,.github/ISSUE_TEMPLATE.md}
 	echo -n >CHANGELOG
