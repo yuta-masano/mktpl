@@ -1,52 +1,49 @@
-### https://raw.github.com/github/gitignore/8512c772d731ce256f81da49e627d293274fab8a/Go.gitignore
 
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-*.o
-*.a
-*.so
+# Created by https://www.gitignore.io/api/Vim,Go
+# Edit at https://www.gitignore.io/?templates=Vim,Go
 
-# Folders
-_obj
-_test
-
-# Architecture specific extensions/prefixes
-*.[568vq]
-[568vq].out
-
-*.cgo1.go
-*.cgo2.c
-_cgo_defun.c
-_cgo_gotypes.go
-_cgo_export.*
-
-_testmain.go
-
+### Go ###
+# Binaries for programs and plugins
 *.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
 *.test
-*.prof
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# external packages folder
-vendor/
+# Dependency directories (remove the comment below to include it)
+# vendor/
 
+### Go Patch ###
+/vendor/
+/Godeps/
 
-### https://raw.github.com/github/gitignore/8512c772d731ce256f81da49e627d293274fab8a/Global/Vim.gitignore
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
 
-# swap
-[._]*.s[a-w][a-z]
-[._]s[a-w][a-z]
-# session
+# Session
 Session.vim
-# temporary
+Sessionx.vim
+
+# Temporary
 .netrwhist
 *~
-# auto-generated tag files
+# Auto-generated tag files
 tags
+# Persistent undo
+[._]*.un~
 
+# End of https://www.gitignore.io/api/Vim,Go
 
-### github.com/yuta-masano/mktpl
+### my repository
 _release
-coverage.out
-data.yml

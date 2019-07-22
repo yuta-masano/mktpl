@@ -6,11 +6,9 @@ set -o nounset -o errexit -o pipefail
 # Prevent commands misbehaving due to locale differences.
 export LC_ALL=C LANG=C
 
-SCRIPT_NAME="${0##*/}"
-
-branch_name="$(git symbolic-ref --short HEAD)"
-
+branch_name="$(git status -sbu no | cut -b 4-)"
 if [ "_$branch_name" == '_master' ]; then
-	echo "$SCRIPT_NAME: master branch is not branch to be commited" >&2
+	SCRIPT_NAME="${0##*/}"
+	echo "$SCRIPT_NAME: WARNING: do not commit to the master branch" >&2
 	exit 1
 fi

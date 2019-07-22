@@ -1,0 +1,41 @@
+linters:
+  enable-all: true
+  disable:
+    - gochecknoglobals
+    - maligned
+    - prealloc
+  fast: false
+
+run:
+  concurrency: 4
+  deadline: 1m
+  tests: false
+  skip-dirs:
+    - _tools/
+
+issues:
+  exclude:
+    # - regex
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  govet:
+    check-shadowing: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+  gocyclo:
+    min-complexity: 10 # minimal code complexity to report, 30 by default (but we recommend 10-20)
+  dupl:
+    threshold: 75
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - github.com/davecgh/go-spew/spew

@@ -1,29 +1,24 @@
 SHELL := /bin/bash
 
-sources = $(find . -type d -name '_*' -prune                              \
-		  -o -type d -name '.git*' -prune                                 \
-		  -o -type f -name '*_test.go' -prune                             \
-		  -o -type f -name '*.go' -print -o -type f -name '*.tpl' -print)
+sources = $(shell find -type f -name '*_test.go' -prune \
+		  -o -type f -name '*.go' -printf '%P '         \
+		  -o -type f -name '*.gotpl' -printf '%P ')
+gopath := $(shell echo $$GOPATH)
 
 #===============================================================================
-#  release information
+#  release
 #===============================================================================
 tool_dir := _tools
 release_dir := _release
 pkg_dest_dir := $(release_dir)/.pkg
 
 latest_local_devel_branch := $(subst * ,,$(shell git branch --sort='-committerdate' \
-	| grep --invert-match master                                                    \
-	| head --lines=1))
-new_tag := $(shell echo "$(latest_local_devel_branch)"  \
-	| grep --only-matching -E '[0-9]+\.[0-9]+\.[0-9]+')
+	| grep --invert-match master | head --lines=1))
+new_tag := $(shell echo "$(latest_local_devel_branch)" | egrep --only-matching '[0-9]+\.[0-9]+\.[0-9]+')
 
 #===============================================================================
-#  build options
+#  build option
 #===============================================================================
-package := $(shell go list)
-binary := $(notdir $(package))
-
 ALL_OS := darwin linux windows
 ALL_ARCH := 386 amd64
 
@@ -33,103 +28,106 @@ VERSION_PACKAGE := main
 build_revision := $(shell git rev-parse --short HEAD)
 build_with := $(shell go version)
 
+# static build
 static_flags := -a -tags netgo -installsuffix netgo
 ld_flags := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(version)' \
 	-X '$(VERSION_PACKAGE).buildRevision=$(build_revision)'       \
 	-X '$(VERSION_PACKAGE).buildWith=$(build_with)'               \
 	-extldflags -static
 
+# go modules (go 1.11)
+enable_go_modules_env := GO111MODULE=on
+
 #===============================================================================
-#  lint options
+#  lint tool
 #===============================================================================
-GOMETALINTER_OPTS := --enable-all --vendored-linters --deadline=60s \
-	--dupl-threshold=75 --line-length=120
-GOMETALINTER_EXCLUDE_REGEX := gas|duplicate of mktpl_test.go
+GOLINTER := golangci-lint run
+
+#===============================================================================
+#  gitignore.io
+#===============================================================================
+GITIGNORE_BOILERPLATE :=  Vim,Go
+gitignore_io_request := https://www.gitignore.io/api/$(GITIGNORE_BOILERPLATE)
 
 #===============================================================================
 #  file generation from template engine
-#    `mktpl` is used for generating files and data.yml is used for templating.
-#    data.yml is automatically generated using upper case variables in Makefile.
+#    `mktpl` is used for generating files, .data.yml is used for templating.
+#    .data.yml is automatically generated using upper case variables in Makefile.
 #===============================================================================
-BINARY := $(binary)
 template_dir := $(tool_dir)/etc/template
+data_yml := .data.yml
+# user-defined function: $(call mktpl,TEMPLATE,OUTPUT)
+define mktpl
+	@mktpl --data=$(data_yml) --template=$1 >$2
+endef
 
-HELP_OUT := $(binary) --help
-ifneq ($(wildcard Gopkg.toml),)
-	THANKS_OUT := ./_tools/create_thanks_list.sh
-endif
+BINARY := $(notdir $(shell go list))
+HELP_OUT := $(BINARY) --help
 
 #===============================================================================
 #  targets
 #    `make [help]` shows tasks what you should execute.
-#    The other which are not shown on help outoput are helper targets.
 #===============================================================================
 .DEFAULT_GOAL := help
 
-# [Add a help target to a Makefile that will allow all targets to be self documenting]
-# https://gist.github.com/prwhite/8168133
-# Tweaked it to show help messages on the .PHONY line.
 .PHONY: help ## show help
 help:
 	@echo 'USAGE: make [target]'
 	@echo
 	@echo 'TARGETS:'
-	@grep -E '^.PHONY[^#]+##' $(MAKEFILE_LIST) \
-		| sed -e 's/^.PHONY: //'               \
+	@egrep '^.PHONY[^#]+##' $(MAKEFILE_LIST) \
+		| sed 's/^.PHONY: //'                \
 		| column -t -s '##'
 
-.PHONY: setup ## install devlop tools for this project and vendor packages based on Gopkg.{lock,toml}
-setup: data.yml
-	go get -v -u github.com/golang/dep/cmd/dep
-	go get -v -u github.com/yuta-masano/mktpl
-	go get -v -u gopkg.in/alecthomas/gometalinter.v2
+.PHONY: setup ## install devlop tools for this project
+setup: $(data_yml)
+	go get -v -u github.com/Songmu/gocredits/cmd/gocredits
+	go get -v -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -v -u github.com/tcnksm/ghr
-	gometalinter --install
-	cp -a $(tool_dir)/etc/git_hooks/* .git/hooks/
-	mkdir -p .github
-	mktpl -d data.yml -t $(template_dir)/ISSUE_TEMPLATE.md > .github/ISSUE_TEMPLATE.md
-	dep ensure
+	go get -v -u github.com/yuta-masano/mktpl
+
+.PHONY: init ## misc tasks for first commit
+init: setup .gitignore
+	mkdir --parents .github
+	${call mktpl,$(template_dir)/ISSUE_TEMPLATE.md,.github/ISSUE_TEMPLATE.md}
+	echo -n >CHANGELOG
+	git add $(tool_dir) .gitignore .github .golangci.yml CHANGELOG LICENSE Makefile
+	git commit --message='First commit'
+	cp --archive $(tool_dir)/etc/git_hooks/* .git/hooks/
+
+.PHONY: cobra ## cobra init (fail if you don't explicitly set BIRARY env)
+cobra: main.go cmd/root.go
+	$(MAKE) main.go
+	$(MAKE) cmd/root.go
 
 # You need to do this task when you have updated or installed packages, because godoc
 # reads files generated by `go install`.
 .PHONY: install ## it is necessary to notify godoc when packages have been updated or installed newly
 install:
-ifneq ($(wildcard Gopkg.toml),)
-	-go install $(shell cat Gopkg.toml                    \
-		| tr '\n' ' '                                     \
-		| egrep -o '\[\[constraint\]\] +name *= *"[^ ]+"' \
-		| sed 's/\(^.*\)"\(.*\)"$$/.\/vendor\/\2/')
-endif
-	CGO_ENABLED=0 go install $(subst -a ,,$(static_flags)) -ldflags "$(ld_flags)"
+	$(MAKE) $(gopath)/bin/$(BINARY)
 
 .PHONY: lint ## lint go sources and check whether only LICENSE file has copyright sentence
 lint: install
-	gometalinter $(GOMETALINTER_OPTS)                                                  \
-		$(if $(GOMETALINTER_EXCLUDE_REGEX), --exclude='$(GOMETALINTER_EXCLUDE_REGEX)') \
-		$(shell go list ./... | grep --invert-match /vendor/)
+	$(GOLINTER)
 	$(tool_dir)/copyright_check.sh
 
 .PHONY: test ## go test
 test:
-	go test -v -cover $(shell go list ./... | grep --invert-match /vendor/) -coverprofile=coverage.out
-
-.PHONY: cover ## open the result of test coverage on the browser
-cover: test
-	go tool cover -html=coverage.out
+	@$(foreach f, $(shell go list ./... | grep --invert-match /vendor/), $(enable_go_modules_env) go test -v -cover $f;)
 
 .PHONY: push-release-tag ## update CHANGELOG and push all of the your development works
-push-release-tag: lint test readme.md
-	$(tool_dir)/add_changelog.sh "$(new_tag)"
+push-release-tag: lint test
+	$(tool_dir)/commit_changelog.sh "$(new_tag)"
 	git checkout master
 	git merge --ff "$(latest_local_devel_branch)"
 	git push
-	$(tool_dir)/add_release_tag.sh "$(new_tag)"
+	$(tool_dir)/push_release_tag.sh "$(new_tag)"
 	git branch --move "$(latest_local_devel_branch)" "$(latest_local_devel_branch)-pushed"
 
 .PHONY: all-build
 all-build: lint test
-	$(tool_dir)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)"        \
-		"$(static_flags)" "$(ld_flags)" "$(pkg_dest_dir)" "$(binary)"
+	$(enable_go_modules_env) $(tool_dir)/build_static_bins.sh "$(ALL_OS)" "$(ALL_ARCH)"        \
+		"$(static_flags)" "$(ld_flags)" "$(pkg_dest_dir)" "$(BINARY)"
 
 .PHONY: all-archive
 all-archive:
@@ -141,16 +139,41 @@ release: all-build all-archive
 
 .PHONY: clean ## uninstall the binary and remove non versioning files and direcotries
 clean:
-	go clean -i .
-	rm -rf $(release_dir)
-	rm -f coverage.out data.yml
+	$(enable_go_modules_env) go mod tidy
+	$(enable_go_modules_env) go clean -i .
+	rm --recursive --force $(release_dir)
+	rm --force $(data_yml)
 
-.PHONY: readme.md ## create README.md using template
-readme.md: data.yml $(template_dir)/README.md
-	@mktpl -d data.yml -t $(template_dir)/README.md > README.md
+.PHONY: doc ## create README.md and DEVELOPMENT.md using template
+doc: $(data_yml) install
+	${call mktpl,$(template_dir)/README.md,README.md}
+	${call mktpl,$(template_dir)/DEVELOPMENT.md,DEVELOPMENT.md}
+	gocredits . > CREDIT
 
-# [Dumping Every Makefile Variable | CMCrossroads]
-# https://www.cmcrossroads.com/article/dumping-every-makefile-variable
+#---  helper targets  ----------------------------------------------------------
+
+.INTERMEDIATE: $(data_yml)
+$(data_yml):
+	@$(MAKE) print_mktpl_vars | grep '^[A-Z_]' >$@
+	@sed --in-place '/^make\[[0-9]\+\]:.*/d; s/ *$$//' $@
+
+.gitignore:
+	curl --location $(gitignore_io_request) >>$@
+	echo >>$@
+	echo '### my repository' >>$@
+	echo '_release' >>$@
+
+$(gopath)/bin/$(BINARY): $(sources)
+	$(enable_go_modules_env) CGO_ENABLED=0 go install $(subst -a ,,$(static_flags)) -ldflags "$(ld_flags)"
+
+main.go: $(data_yml)
+	${call mktpl,$(template_dir)/cobra/main.go,$@}
+
+cmd/root.go: $(data_yml)
+	mkdir --parents cmd
+	${call mktpl,$(template_dir)/cobra/root.go,$@}
+
+# Dumping Every Makefile Variable
 .PHONY: print_mktpl_vars
 print_mktpl_vars:
 	$(foreach V,                                         \
@@ -161,8 +184,3 @@ print_mktpl_vars:
 			$(info $V: $($V))                            \
 		)                                                \
 	)
-
-.PHONY: data.yml
-data.yml:
-	@$(MAKE) print_mktpl_vars | grep '^[A-Z]' > $@
-	@sed -i -e '/^make\[[0-9]\+\]:.*/d' -e 's/ *$$//' $@
