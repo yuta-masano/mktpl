@@ -25,7 +25,7 @@
 
 [Releases ページ](https://github.com/yuta-masano/{{ .BINARY }}/releases)からダウンロードしてください。
 
-あるいは、`go get` でも可能かもしれませんが、ライブラリパッケージは [glide](https://glide.sh/) で vendoring しています。
+あるいは、Go 1.11 以降で `go get` してください。
 
 ```
 $ go get github.com/yuta-masano/{{ .BINARY }}
