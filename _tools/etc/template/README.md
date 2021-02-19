@@ -25,12 +25,6 @@
 
 [Releases ページ](https://github.com/yuta-masano/{{ .BINARY }}/releases)からダウンロードしてください。
 
-あるいは、Go 1.11 以降で `go get` してください。
-
-```
-$ go get github.com/yuta-masano/{{ .BINARY }}
-```
-
 ## Usage
 
 ```

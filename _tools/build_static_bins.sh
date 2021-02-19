@@ -39,6 +39,7 @@ for os in $ALL_OS; do
 		echo "build $output"
 		GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 go build \
 			$STATIC_FLAGS -ldflags "$LD_FLAGS"           \
+			-trimpath                                    \
 			-o "$output"                                 &
 		(( (cnt += 1) % $PARALLEL_NUM == 0 )) && wait
 	done

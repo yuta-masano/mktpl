@@ -1,20 +1,22 @@
-# 背景
-
-## OS 名, アーキテクチャ, ```{{ .BINARY }} --version``` の出力結果
+### {{ .BINARY }} version information
 
 ```
 
 ```
 
-## 前提条件
+### Operating system, architecture, version information
 
-## 再現手順
+```
 
-# 期待する動作
+```
 
-# 実際の動作
+### Steps to reproduce
 
-# 対応方法
+### Actual behavior
 
-# 問題が解決する事のメリット / 問題が解決しない事のデメリット
+### Expected behavior
+
+### Advantage of solving issues / Disadvantage of not solving issues
+
+### References (if any)
 
