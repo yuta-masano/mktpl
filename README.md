@@ -25,12 +25,6 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 
 [Releases ページ](https://github.com/yuta-masano/mktpl/releases)からダウンロードしてください。
 
-あるいは、Go 1.11 以降で `go get` してください。
-
-```
-$ go get github.com/yuta-masano/mktpl
-```
-
 ## Usage
 
 ```
