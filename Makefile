@@ -7,7 +7,6 @@ sources = $(shell find . -type d -name '*_tools' -prune -or \
 		  \)                                                \
 		  -printf '%p ')
 gopath := $(shell echo $$GOPATH)
-go_cover_out := cover.out
 
 #===============================================================================
 #  release
@@ -18,8 +17,9 @@ pkg_dest_dir := $(release_dir)/.pkg
 
 latest_local_devel_branch := $(shell git for-each-ref --count=1 \
 	--sort=-committerdate --format='%(refname:short)' refs/heads/)
-new_tag := $(shell echo "$(latest_local_devel_branch)" \
-	| egrep --only-matching '[0-9]+\.[0-9]+\.[0-9]+')
+sem_ver_regex := (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$$
+new_tag := v$(shell echo "$(latest_local_devel_branch)" \
+	| egrep --only-matching '$(sem_ver_regex)')
 
 #===============================================================================
 #  build option
@@ -40,10 +40,25 @@ ld_flags := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(version)' \
 	-X '$(VERSION_PACKAGE).buildWith=$(build_with)'               \
 	-extldflags -static
 
+# ==============================================================================
+#   develop tools version
+# ==============================================================================
+GOLANGCI_LINT_VERSION := 1.54.2
+GOCREDITS_VERSION := 0.3.0
+GIT_CHGLOG_VERSION := 0.15.4
+GHR_VERSION := 0.16.0
+MKTPL_VERSION := 1.0.0
+
 #===============================================================================
 #  lint tool
 #===============================================================================
 GOLINTER := golangci-lint run
+
+#===============================================================================
+#   go test
+#===============================================================================
+go_cover_out := cover.out
+go_test := go test -tags mock
 
 #===============================================================================
 #  gitignore.io
@@ -77,17 +92,17 @@ help:
 	@echo 'USAGE: make [target]'
 	@echo
 	@echo 'TARGETS:'
-	@egrep '^.PHONY[^#]+##' $(MAKEFILE_LIST) \
-		| sed 's/^.PHONY: //'                \
-		| column -t -s '##'
+	@egrep '^.PHONY[^#]+##' $(MAKEFILE_LIST)                                        \
+		| sed 's/^.PHONY: //'                                                       \
+		| awk 'BEGIN {FS = " ## "}; {printf "\033[32m%-19s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: setup ## install devlop tools for this project
 setup: $(data_yml)
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-		| bash -s -- -b $$(go env GOPATH)/bin v1.37.0
-	go install github.com/Songmu/gocredits/cmd/gocredits@v0.2.0
-	go install github.com/tcnksm/ghr@v0.13.0
-	go install github.com/yuta-masano/mktpl@0.0.10
+		| bash -s -- -b $(shell go env GOPATH)/bin v$(GOLANGCI_LINT_VERSION)
+	go install github.com/Songmu/gocredits/cmd/gocredits@v$(GOCREDITS_VERSION)
+	go install github.com/tcnksm/ghr@v$(GHR_VERSION)
+	go install github.com/yuta-masano/mktpl@$(MKTPL_VERSION)
 
 .PHONY: init ## misc tasks for first commit
 init: setup .gitignore
@@ -116,7 +131,8 @@ lint: install
 
 .PHONY: test ## go test
 test:
-	@$(foreach f, $(shell go list ./... | grep --invert-match /vendor/), go test -cover $f;)
+	@go mod tidy
+	@$(go_test) -cover ./...
 
 .PHONY: coverfunc ## check cover profile for each function
 coverfunc: $(go_cover_out)
@@ -170,7 +186,8 @@ $(data_yml):
 
 .INTERMEDIATE: $(go_cover_out)
 $(go_cover_out):
-	go test -cover --coverprofile=$(go_cover_out) ./...
+	@go mod tidy
+	$(go_test) -cover --coverprofile=$(go_cover_out) ./...
 
 .gitignore:
 	curl --location $(gitignore_io_request) >>$@

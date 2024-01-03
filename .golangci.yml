@@ -1,26 +1,58 @@
-linters:
-  enable-all: true
-  disable:
-    - gochecknoglobals
-    - maligned
-    - prealloc
-  fast: false
-
 run:
   concurrency: 4
-  deadline: 1m
-  tests: false
+  timeout: 30s
+  tests: true
+  fix: true
   skip-dirs:
     - _tools/
+  skip-files:
+    # - regex
 
 issues:
   exclude:
     # - regex
+  exclude-rules:
+    # - source: ^func Test
+    - path: '(.+)_test\.go'
+      linters:
+        - dupword
+        - funlen
+    - source: cmd := exec.Command\(execs\[0\], execs\[1:\]...\)
+      linters:
+        - gosec
+
+linters:
+  enable-all: true
+  disable:
+    - deadcode
+    - exhaustivestruct
+    - gochecknoglobals
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
+    - prealloc
+    - scopelint
+    - structcheck
+    - varcheck
 
 linters-settings:
+  depguard:
+    rules:
+      basic_rule:
+        files:
+          - $all
+        list-mode: lax
+        deny:
+          - pkg: github.com/davecgh/go-spew/spew
+  dupl:
+    threshold: 100
   errcheck:
     check-type-assertions: true
     check-blank: true
+  gocyclo:
+    min-complexity: 10 # minimal code complexity to report, 30 by default (but we recommend 10-20)
   govet:
     check-shadowing: true
     settings:
@@ -30,12 +62,3 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  gocyclo:
-    min-complexity: 10 # minimal code complexity to report, 30 by default (but we recommend 10-20)
-  dupl:
-    threshold: 75
-  depguard:
-    list-type: blacklist
-    include-go-root: false
-    packages:
-      - github.com/davecgh/go-spew/spew
