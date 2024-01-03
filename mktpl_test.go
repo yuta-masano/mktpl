@@ -84,14 +84,14 @@ TEST: aaa`,
 		},
 		{
 			inData: `TEST: [foo, bar, baz]`,
-			inTpl:  `test04 is {{ join .TEST "," }}`,
+			inTpl:  `test04 is {{ implode .TEST "," }}`,
 			expect: `test04 is foo,bar,baz`,
 		},
 		{
 			// 0... は 8 進数として解釈される。
 			inData: `TEST: [foo, bar, baz, 1, '%.wer', 'hoge', '0123', 017]
-TEST_NEST: '{{ join {{ .TEST }} "," }}'`,
-			inTpl:  `test05 is {{ join .TEST "," }}`,
+TEST_NEST: '{{ implode {{ .TEST }} "," }}'`,
+			inTpl:  `test05 is {{ implode .TEST "," }}`,
 			expect: `test05 is foo,bar,baz,1,%.wer,hoge,0123,15`,
 		},
 		{
@@ -159,6 +159,11 @@ db03
 			expect: `test11
 0 DB2
 `,
+		},
+		{
+			inData: `TEST: test.go`,
+			inTpl:  `test12 is {{ trimSuffix ".go" .TEST }}`,
+			expect: `test12 is test`,
 		},
 	}
 

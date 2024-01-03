@@ -10,12 +10,12 @@ import (
 )
 
 var tplFuncMap = template.FuncMap{
-	"join":    tplJoin,
+	"implode": tplImplode,
 	"exec":    tplExec,
 	"exclude": tplExclude,
 }
 
-func tplJoin(a []interface{}, sep string) string {
+func tplImplode(a []interface{}, sep string) string {
 	var s []string
 	for _, v := range a {
 		s = append(s, fmt.Sprint(v))
@@ -48,4 +48,16 @@ LOOP:
 		n = append(n, v)
 	}
 	return n
+}
+
+// mergeTemplateFuncMaps は複数の template.FuncMap をマージして返す。
+func mergeTemplateFuncMaps(templateFuncMaps ...template.FuncMap) template.FuncMap {
+	merged := make(template.FuncMap)
+	for _, tfm := range templateFuncMaps {
+		for k, v := range tfm {
+			merged[k] = v
+		}
+	}
+
+	return merged
 }

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"gopkg.in/yaml.v2"
 )
 
@@ -130,7 +131,7 @@ func (m *mktpl) Run(args []string) int {
 }
 
 func parseTemplate(text string) (*template.Template, error) {
-	tpl, err := template.New("").Funcs(tplFuncMap).Parse(text)
+	tpl, err := template.New("").Funcs(mergeTemplateFuncMaps(tplFuncMap, sprig.FuncMap())).Parse(text)
 	if err != nil {
 		return nil, err
 	}
