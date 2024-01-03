@@ -59,7 +59,7 @@ new_chengelog="$(mktemp --suffix=".$TEMP_FILE_SUFFIX")"
 	echo '  Bug Fix'
 	echo "$commit_logs" | sed --quiet 's/fix: //p'
 	echo
-	echo "$commit_logs" | egrep --invert-match 'change:|feat:|fix:'
+	echo "$commit_logs" | egrep --invert-match 'change:|feat:|fix:' || :
 	echo
 	echo "$current_changelog"
 } > "$new_chengelog"

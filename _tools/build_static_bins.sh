@@ -35,6 +35,8 @@ for os in $ALL_OS; do
 		app_name="$BINARY"
 	fi
 	for arch in $ALL_ARCH; do
+		[ "${os}_${arch}" = "darwin_386" ] && continue # unsupported GOOS/GOARCH pair darwin/386
+
 		output="$PKG_DEST_DIR/${os}_${arch}/$app_name"
 		echo "build $output"
 		GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 go build \
