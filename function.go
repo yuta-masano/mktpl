@@ -20,6 +20,7 @@ func tplImplode(a []interface{}, sep string) string {
 	for _, v := range a {
 		s = append(s, fmt.Sprint(v))
 	}
+
 	return strings.Join(s, sep)
 }
 
@@ -28,31 +29,36 @@ func tplExec(a interface{}) string {
 	if err != nil {
 		return err.Error()
 	}
+
 	cmd := exec.Command(execs[0], execs[1:]...)
+
 	out, err := cmd.Output()
 	if err != nil {
 		return err.Error()
 	}
+
 	return string(out)
 }
 
 func tplExclude(a []interface{}, s ...string) []interface{} {
-	var n []interface{}
+	var excluded []interface{}
 LOOP:
-	for _, v := range a {
+	for _, value := range a {
 		for _, w := range s {
-			if fmt.Sprint(v) == w {
+			if fmt.Sprint(value) == w {
 				continue LOOP
 			}
 		}
-		n = append(n, v)
+		excluded = append(excluded, value)
 	}
-	return n
+
+	return excluded
 }
 
 // mergeTemplateFuncMaps は複数の template.FuncMap をマージして返す。
 func mergeTemplateFuncMaps(templateFuncMaps ...template.FuncMap) template.FuncMap {
 	merged := make(template.FuncMap)
+
 	for _, tfm := range templateFuncMaps {
 		for k, v := range tfm {
 			merged[k] = v

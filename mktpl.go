@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -35,7 +36,7 @@ const (
 	exitCodeParseTemplateError
 )
 
-// Flags
+// Flags.
 var (
 	tplPath     string
 	dataPath    string
@@ -43,7 +44,7 @@ var (
 	showVersion bool
 )
 
-// version information
+// version information.
 var (
 	// These values are embedded when building.
 	buildVersion  string
@@ -51,7 +52,9 @@ var (
 	buildWith     string
 )
 
-var re = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
+var errMissingFlags = errors.New("omitting -d|--data and -t|--template flags is not allowed")
+
+var regex = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
 
 type mktpl struct {
 	outStream, errStream io.Writer
@@ -75,8 +78,9 @@ func (m *mktpl) parseFlags(args []string) error {
 
 	// Parse flag
 	if err := flags.Parse(args[1:]); err != nil {
-		return fmt.Errorf("%s", err)
+		return fmt.Errorf("%w", err)
 	}
+
 	return nil
 }
 
@@ -84,88 +88,104 @@ func (m *mktpl) parseFlags(args []string) error {
 func (m *mktpl) Run(args []string) int {
 	if err := m.parseFlags(args); err != nil {
 		fmt.Fprintf(m.errStream, "faild in parsing flags: %s\n", err)
+
 		return exitCodeParseFlagsError
 	}
 
 	if showHelp {
 		fmt.Fprintf(m.outStream, "%s\n", helpText)
+
 		return exitCodeOK
 	}
 
 	if showVersion {
 		fmt.Fprintf(m.outStream, "version: %s\nrevision: %s\nwith: %s\n",
 			buildVersion, buildRevision, buildWith)
+
 		return exitCodeOK
 	}
 
 	if err := isValidFlags(); err != nil {
 		fmt.Fprintf(m.errStream, "invalid flags: %s\n", err)
+
 		return exitCodeInvalidFlags
 	}
 
 	data, err := os.ReadFile(dataPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
+
 		return exitCodeInvalidFilePath
 	}
 
-	t, err := os.ReadFile(tplPath)
+	text, err := os.ReadFile(tplPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in reading the template file: %s\n", err)
+
 		return exitCodeInvalidFilePath
 	}
 
-	tpl, err := parseTemplate(string(t))
+	tpl, err := parseTemplate(string(text))
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in parsing the template file: %s\n", err)
+
 		return exitCodeParseTemplateError
 	}
 
 	var out []byte
+
 	if out, err = render(data, tpl); err != nil {
 		fmt.Fprintf(m.errStream, "%s\n", err)
+
 		return exitCodeError
 	}
+
 	fmt.Fprintf(m.outStream, "%s", string(out))
+
 	return exitCodeOK
 }
 
 func parseTemplate(text string) (*template.Template, error) {
 	tpl, err := template.New("").Funcs(mergeTemplateFuncMaps(tplFuncMap, sprig.FuncMap())).Parse(text)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w", err)
 	}
+
 	return tpl, nil
 }
 
 func isValidFlags() error {
 	if len(tplPath) == 0 || len(dataPath) == 0 {
-		return fmt.Errorf("omitting -d|--data and -t|--template flags is not allowed")
+		return fmt.Errorf("%w", errMissingFlags)
 	}
+
 	return nil
 }
 
 func render(data []byte, tpl *template.Template) ([]byte, error) {
 	mappedData := make(map[interface{}]interface{})
 	if err := yaml.Unmarshal(data, &mappedData); err != nil {
-		return nil, fmt.Errorf("failed in unmarshalling the YAML data: %s", err)
+		return nil, fmt.Errorf("failed in unmarshalling the YAML data: %w", err)
 	}
 
 	buf := new(bytes.Buffer)
 	if err := tpl.Execute(buf, mappedData); err != nil {
-		return nil, fmt.Errorf("failed in rendering: %s", err)
+		return nil, fmt.Errorf("failed in rendering: %w", err)
 	}
 
 	out, err := io.ReadAll(buf)
 	if err != nil {
-		return nil, fmt.Errorf("failed in reading the buffered text: %s", err)
+		return nil, fmt.Errorf("failed in reading the buffered text: %w", err)
 	}
-	if re.MatchString(string(out)) {
+
+	if regex.Match(out) {
 		tpl, err := parseTemplate(string(out))
 		if err != nil {
-			return nil, fmt.Errorf("failed in parsing the buffered template %s", err)
+			return nil, fmt.Errorf("failed in parsing the buffered template %w", err)
 		}
+
 		return render(data, tpl)
 	}
+
 	return out, nil
 }

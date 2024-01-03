@@ -50,6 +50,7 @@ func TestIsValidFlags(t *testing.T) {
 
 	for i, c := range testCases {
 		dataPath, tplPath = c.d, c.t
+
 		if err := isValidFlags(); (err == nil) == c.isError {
 			t.Fatalf("[%d] invalid error state: expected=%t, but got=%t",
 				i+1, c.isError, (err == nil) == c.isError)
@@ -167,18 +168,20 @@ db03
 		},
 	}
 
-	for i, c := range testCases {
-		tpl, err := parseTemplate(c.inTpl)
+	for index, testCase := range testCases {
+		tpl, err := parseTemplate(testCase.inTpl)
 		if err != nil {
 			t.Fatal(err)
 		}
-		out, err := render([]byte(c.inData), tpl)
+
+		out, err := render([]byte(testCase.inData), tpl)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if string(out) != c.expect {
+
+		if string(out) != testCase.expect {
 			t.Fatalf("[%d] failed in templateing: expected=%s, but got=%s",
-				i+1, c.expect, string(out))
+				index+1, testCase.expect, string(out))
 		}
 	}
 }
@@ -188,14 +191,16 @@ func BenchmarkSimpleRe(b *testing.B) {
 TEST_NEST: test09 {{ exec .TEST }}`
 	inTpl := `test09 is {{ .TEST_NEST }} nest`
 
-	re = regexp.MustCompile(`{{[-.\s\w]+}}`)
+	regex = regexp.MustCompile(`{{[-.\s\w]+}}`)
 
 	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
 		tpl, err := parseTemplate(inTpl)
 		if err != nil {
 			b.Fatal(err)
 		}
+
 		_, err = render([]byte(inData), tpl)
 		if err != nil {
 			b.Fatal(err)
@@ -208,14 +213,16 @@ func BenchmarkStrictRe(b *testing.B) {
 TEST_NEST: test09 {{ exec .TEST }}`
 	inTpl := `test09 is {{ .TEST_NEST }} nest`
 
-	re = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
+	regex = regexp.MustCompile(`{{\s*-?\s*(\.?\w+\s*)+-?\s*}}`)
 
 	b.ResetTimer()
+
 	for n := 0; n < b.N; n++ {
 		tpl, err := parseTemplate(inTpl)
 		if err != nil {
 			b.Fatal(err)
 		}
+
 		_, err = render([]byte(inData), tpl)
 		if err != nil {
 			b.Fatal(err)
