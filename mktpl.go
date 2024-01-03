@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"text/template"
 
@@ -102,13 +102,13 @@ func (m *mktpl) Run(args []string) int {
 		return exitCodeInvalidFlags
 	}
 
-	data, err := ioutil.ReadFile(dataPath)
+	data, err := os.ReadFile(dataPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in reading the data file: %s\n", err)
 		return exitCodeInvalidFilePath
 	}
 
-	t, err := ioutil.ReadFile(tplPath)
+	t, err := os.ReadFile(tplPath)
 	if err != nil {
 		fmt.Fprintf(m.errStream, "failed in reading the template file: %s\n", err)
 		return exitCodeInvalidFilePath
@@ -155,7 +155,7 @@ func render(data []byte, tpl *template.Template) ([]byte, error) {
 		return nil, fmt.Errorf("failed in rendering: %s", err)
 	}
 
-	out, err := ioutil.ReadAll(buf)
+	out, err := io.ReadAll(buf)
 	if err != nil {
 		return nil, fmt.Errorf("failed in reading the buffered text: %s", err)
 	}
