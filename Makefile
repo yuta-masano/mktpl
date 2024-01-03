@@ -43,11 +43,11 @@ ld_flags := -s -w -X '$(VERSION_PACKAGE).buildVersion=$(version)' \
 # ==============================================================================
 #   develop tools version
 # ==============================================================================
-GOLANGCI_LINT_VERSION := 1.54.2
-GOCREDITS_VERSION := 0.3.0
-GIT_CHGLOG_VERSION := 0.15.4
-GHR_VERSION := 0.16.0
-MKTPL_VERSION := 1.0.0
+GOLANGCI_LINT_VERSION := v1.54.2
+GOCREDITS_VERSION := v0.3.0
+GIT_CHGLOG_VERSION := v0.15.4
+GHR_VERSION := v0.16.0
+MKTPL_VERSION := v1.0.1
 
 #===============================================================================
 #  lint tool
@@ -99,9 +99,9 @@ help:
 .PHONY: setup ## install devlop tools for this project
 setup: $(data_yml)
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-		| bash -s -- -b $(shell go env GOPATH)/bin v$(GOLANGCI_LINT_VERSION)
-	go install github.com/Songmu/gocredits/cmd/gocredits@v$(GOCREDITS_VERSION)
-	go install github.com/tcnksm/ghr@v$(GHR_VERSION)
+		| bash -s -- -b $(shell go env GOPATH)/bin $(GOLANGCI_LINT_VERSION)
+	go install github.com/Songmu/gocredits/cmd/gocredits@$(GOCREDITS_VERSION)
+	go install github.com/tcnksm/ghr@$(GHR_VERSION)
 	go install github.com/yuta-masano/mktpl@$(MKTPL_VERSION)
 
 .PHONY: init ## misc tasks for first commit
