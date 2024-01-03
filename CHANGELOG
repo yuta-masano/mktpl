@@ -1,3 +1,14 @@
+v1.0.0 (2024-01-03)
+  Incompatible Change
+    * sprig の テンプレート関数を追加
+      sprig の テンプレート関数の join と独自テンプレート関数の join の衝突を回避するために、独自テンプレート関数の join を implode に変更した。
+
+  Bug Fix
+    * Go 言語の API 変更に対応
+
+  Document
+    * バージョンアップに伴い更新
+
 0.0.10 (2019-07-23)
   Document
     * インストール方法を修正
