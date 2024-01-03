@@ -24,6 +24,8 @@ PKG_DEST_DIR="$3" # should be _release/.pkg
 cd "$PKG_DEST_DIR"
 for os in $ALL_OS; do
 	for arch in $ALL_ARCH; do
+		[ "${os}_${arch}" = "darwin_386" ] && continue # unsupported GOOS/GOARCH pair darwin/386
+
 		cp ../../CHANGELOG ../../CREDIT ../../LICENSE ../../README.md \
 			"${os}_${arch}"
 		if $(echo "${os}_${arch}" | grep --quiet 'linux'); then
