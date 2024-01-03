@@ -7,7 +7,7 @@ mktpl は YAML データと [text/template](http://golang-jp.org/pkg/text/templa
 * コマンドオプションで YAML 形式のデータファイルと [text/template](http://golang-jp.org/pkg/text/template/) スタイルのテンプレートファイルのパスを指定すると、テキストが標準出力にレンダリングされる。
 * YAML データファイルではハッシュの値にキーを指定することができる。
 * 独自のテンプレート関数を実装している。
-  * [Masterminds/sprig: Useful template functions for Go templates.](https://github.com/Masterminds/sprig) というテンプレート関数ライブラリを発見したけど、べ、別に泣いてないですよ。
+* [Masterminds/sprig: Useful template functions for Go templates.](https://github.com/Masterminds/sprig) も使える。
 
 ## Demonstration
 
@@ -44,14 +44,15 @@ Flags (* is mandatory):
 
 ## Template Functions
 
-### \{\{ join list separator \}\}
+### \{\{ implode list separator \}\}
 
 Same as [strings.Join](https://golang.org/pkg/strings/#Join) function.
 
 ### \{\{ exec command \[flags\] \[args\] \}\}
 
 Execute **single** external command and return it's stdout output.  
-**Single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).
+**Single** means that no pipe (|), no redirection (>), no command connection (&, &&, ;, ||).  
+**Arbitrary commands can be executed. Be very careful when using it.**
 
 ### \{\{ exclude list string... \}\}
 
